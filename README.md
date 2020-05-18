@@ -5,7 +5,7 @@ This repository contains example Python, SLURM and shell scripts for getting dee
 
 The deeplabcut docker is based of the original docker instructions found here: https://github.com/DeepLabCut/Docker4DeepLabCut2.0 but will use a docker image hosted on dockerhub that can be pulled onto the cluster and built into a singularity image instead. (So no need to re-create the docker unless you would like to update it / alter it).
 
-Throughout the protocol 'userid' will be your Cluster / Bridges / PSC user ID for example, mine is ‘bisett.’
+Throughout the protocol `userid` will be your Cluster / Server / PSC user ID for example, mine is ‘bisett.’ And `$SCRATCH` represents the directory on the server where your data and model are stored.
 
 Many steps assume you are logged into the cluster via ssh, for example using:
 
