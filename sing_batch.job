@@ -1,0 +1,8 @@
+#!/bin/bash
+set -x
+source /etc/profile.d/modules.sh
+module load singularity
+echo "JOB ID IN SBATCH:"
+echo $SLURM_ARRAY_TASK_ID
+cd $SCRATCH
+singularity exec --nv dlc_217.simg ./sing.sh $SLURM_ARRAY_TASK_ID
