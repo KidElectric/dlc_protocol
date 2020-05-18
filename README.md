@@ -58,8 +58,7 @@ Many steps assume you are logged into the cluster via ssh, for example using:
 	
 1. Prepare 3 scripts necessary for running jobs in parallel on PSC:
 	1. Job script, look at `sing_batch.job` for more details, but essentially:
-		1. This file is a SLURM .job script that loads singularity module and executes linux script using the converted docker image: `singularity exec --nv dlc_217.simg ./sing.sh $SLURM_ARRAY_TASK_ID`
-		1.Note: $SLURM_ARRAY_TASK_ID is a number assigned during the batch call which can be passed all the way into Python to pick which videos to analyze. Each video can be analyzed in parallel using this method (for as many GPU nodes are available)
+		1. This file is a SLURM .job script that loads singularity module and executes linux script using the converted docker image: `singularity exec --nv dlc_217.simg ./sing.sh $SLURM_ARRAY_TASK_ID` -- --nv enables CUDA support, and $SLURM_ARRAY_TASK_ID is the number assigned during the sbatch job array call which can be passed all the way into Python to pick which videos to analyze. Each video can be analyzed in parallel using this method (for as many GPU nodes are available)
 		1. Make sure .job file is executable: `chmod +x sing_batch.job`			
 		1. If you wrote it in windows, make sure to fix new line characters: `sed -i -e 's/\r$//' sing_batch.job`
 
