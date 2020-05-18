@@ -42,18 +42,19 @@ Many steps assume you are logged into the cluster via ssh, for example using:
 	1. You should be able to run a shell in this image, for example:
 	
 		`singularity shell dlc_217.simg`
+	1. Note: deeplabcut is available as a module in python3 in this image
 		
-	1. Note: It is possible to make your own docker and push that to dockerhub if you wish to make changes or make your 		own docker. See docker documentation for details on docker push.
+	1. Note: It is possible to make your own docker and push that to dockerhub if you wish to make changes. See docker documentation for details on docker push. https://ropenscilabs.github.io/r-docker-tutorial/04-Dockerhub.html
 	
-1. Upload a trained model to PSC
+1. Upload your trained model to PSC (or if training done on server, skip this step)
 
 	1. Copy the DLC trained model project folder onto $SCRATCH 
 	
-	1. Copy the pre-trained resnet_v1_50.ckpt model to a location in $SCRATCH
+	1. Copy the pre-trained resnet_v1_50.ckpt model to a location in $SCRATCH (only need to do this first time)
 	
-	1. Edit the project .yaml files to reference these server locations! In particular: project’s main config.yaml and /train/pose_cfg.yaml and /test/pose_cfg.yaml (if required)
+	1. Edit the project .yaml files to reference these server locations! In particular: project’s main config.yaml and /train/pose_cfg.yaml and /test/pose_cfg.yaml (if required). This can be done using the onDemand file editor in PSC if using Bridges, or vim via ssh.
 	
-	1. Note: Absolute paths seem to work better than relative paths, i.e. /pylon5/grantid/userid/ as opposed to $SCRATCH
+	1. Note: Absolute paths seem to work better than relative paths, i.e. /pylon5/grantid/userid/project as opposed to ./project
 	
 1. Prepare 3 scripts necessary for running jobs in parallel on PSC:
 	1. Job script, look at `sing_batch.job` for more details, but essentially:
@@ -85,10 +86,13 @@ Many steps assume you are logged into the cluster via ssh, for example using:
 		print("Succeeded")
 		```
 
-1. Finally, type the SLURM sbatch command as a job array to recruit GPU nodes as quickly as they become available:
+1. Finally, write the sbatch command as a job array to recruit GPU nodes as quickly as they become available:
 	1. ssh into the server as described above.
 	1. cd to directory with sing_batch.job, e.g. `cd $SCRATCH`
 	1. For example, to process the first 10 videos on volta16 GPUs in parallel type: `sbatch -p GPU-AI -N 1 --gres=gpu:volta16:1 -t 03:00:00 --array=0-9 sing_batch.job`
 	1. The numbers after --array are the number of jobs that will each get assigned to a GPU node. This task ID will also be passed as the local env variable $SLURM_ARRAY_TASK_ID -- This makes it easy to resume at a certain video etc by passing a different array range. See SLURM job array documentation for more details (https://slurm.schedmd.com/job_array.html)
 	1. If you know the absolute longest amount of time it could take to analyze one of your videos, update the max time HH:MM:SS after the -t option to reflect that time. the -t command requests a certain max amount of time, and shorter times may be available more quickly on a given cluster.
+	1. Check the slurm_.out files to see what did and didn't work!
+	1. .csv analysis files will be saved to the project/videos directory
 	1. It’s possible to debug this code in an interactive session: requested via: `interact -p GPU-AI --gres=gpu:volta16:1 -t 01:00:00 --egress`
+
