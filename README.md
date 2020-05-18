@@ -8,59 +8,69 @@ The deeplabcut docker is based of the original docker instructions found here: h
 Throughout the protocol 'userid' will be your Cluster / Bridges / PSC user ID for example, mine is ‘bisett.’
 
 Many steps assume you are logged into the cluster via ssh, for example using:
-ssh -l userid bridges.psc.xsede.org
 
-1) Using SFTP to import videos onto pylon5 / cluster storage space (skip if videos are already on server or if unnecessary)
-	a. It’s possible to login to bridges OnDemand and drag/drop files in the file explorer:
+`ssh -l userid bridges.psc.xsede.org`
+
+1. Using SFTP to import videos onto pylon5 / cluster storage space (skip if videos are already on server or if unnecessary)
+
+	1. It’s possible to login to bridges OnDemand and drag/drop files in the file explorer:
 		https://ondemand.bridges.psc.edu/pun/sys/dashboard
 
-	b. On a LINUX machine or using Ubuntu App in Windows / putty:
-		sftp -P 2222 userid@data.bridges.psc.edu
-		(and use sftp manually If applicable).
+	1. On a LINUX machine or using Ubuntu App in Windows / putty, manually add files by sftp:	
+		`sftp -P 2222 userid@data.bridges.psc.edu` 
 
-	c.	To use python for more automated uploading process:
-		i.	Connect to sftp or ssh to PSC at least once to generate SSH keys
-		ii.	On local computer run ‘pip install pysftp’ to install python sftp package
-		iii.	See: pysftp_example.py for simple call
-		iv.	See: pysftp_upload.py for full upload pseudo-code example
+	1. To use python for more automated uploading process:
+		1.	Connect to sftp or ssh to PSC at least once to generate SSH keys
+		1.	On local computer run `pip install pysftp` to install python sftp package
+		1.	See: pysftp_example.py for simple call
+		1.	See: pysftp_upload.py for full upload pseudo-code example
 		
-2) Import DLC docker from dockerhub and make a singularity image
-	a. Log into PSC using ssh (described above)
-	b. Load singularity: module load singularity
-	c. Move to desired directory for singularity image, for example: cd $SCRATCH
-	d. Import a working DLC docker and create singularity image:
-		singularity build dlc_217.simg docker://kidelectric/deeplabcut:ver_2_1_7
-	e. Your current directory should have a file called dlc_217.simg when this is done.
-	f. You should be able to run a shell in this image, for example:
-		singularity shell dlc_217.simg 
-	g. Note: It is possible to make your own docker and push that to dockerhub if you wish to make changes or make your 		own docker. See docker documentation for details on docker push.
-3) Upload a trained model to PSC
-	a. Copy the DLC trained model project folder onto $SCRATCH 
-	b. Copy the pre-trained resnet_v1_50.ckpt model to a location in $SCRATCH
-	c. Edit the project .yaml files to reference these server locations! In particular: project’s main config.yaml and /train/pose_cfg.yaml and /test/pose_cfg.yaml (if required)
-	d. Note: Absolute paths seem to work better than relative paths, i.e. /pylon5/grantid/userid/ as opposed to $SCRATCH
-4) Prepare 3 scripts necessary for running jobs in parallel on PSC:
+1. Import DLC docker from dockerhub and make a singularity image
 
-	a. Job script
-		i. See: sing_batch.job, essentially:
-		#!/bin/bash
-		set -x
-		source /etc/profile.d/modules.sh
-		module load singularity
-		cd $SCRATCH
-		singularity exec --nv dlc_217.simg ./sing.sh $SLURM_ARRAY_TASK_ID
-		ii. Note: $SLURM_ARRAY_TASK_ID is a number assigned during the batch call which can be passed all the way into Python to pick which videos to analyze. Each video can be analyzed in parallel using this method (for as many GPU nodes are available)
-		iii. Make sure .job file is executable: chmod +x sing_batch.job
-		iv. If you wrote it in windows, make sure to fix new line characters:
-			sed -i -e 's/\r$//' sing_batch.job
+	1. Log into PSC using ssh (described above)
+	
+	1. Load singularity: module load singularity
+	
+	1. Move to desired directory for singularity image, for example: cd $SCRATCH
+	
+	1. Import a working DLC docker and create singularity image:
+	
+		`singularity build dlc_217.simg docker://kidelectric/deeplabcut:ver_2_1_7`
+		
+	1. Your current directory should have a file called dlc_217.simg when this is done.
+	
+	1. You should be able to run a shell in this image, for example:
+	
+		`singularity shell dlc_217.simg`
+		
+	1. Note: It is possible to make your own docker and push that to dockerhub if you wish to make changes or make your 		own docker. See docker documentation for details on docker push.
+	
+1. Upload a trained model to PSC
 
-	b. A linux .sh script to call within the singularity image:
-		i. See: sing.sh, essentially:
+	1. Copy the DLC trained model project folder onto $SCRATCH 
+	
+	1. Copy the pre-trained resnet_v1_50.ckpt model to a location in $SCRATCH
+	
+	1. Edit the project .yaml files to reference these server locations! In particular: project’s main config.yaml and /train/pose_cfg.yaml and /test/pose_cfg.yaml (if required)
+	
+	1. Note: Absolute paths seem to work better than relative paths, i.e. /pylon5/grantid/userid/ as opposed to $SCRATCH
+	
+1. Prepare 3 scripts necessary for running jobs in parallel on PSC:
+	1. Job script, look at `sing_batch.job` for more details, but essentially:
+		1. This file is a SLURM .job script that loads singularity module and executes linux script using the converted docker image: `singularity exec --nv dlc_217.simg ./sing.sh $SLURM_ARRAY_TASK_ID`
+		1.Note: $SLURM_ARRAY_TASK_ID is a number assigned during the batch call which can be passed all the way into Python to pick which videos to analyze. Each video can be analyzed in parallel using this method (for as many GPU nodes are available)
+		1. Make sure .job file is executable: `chmod +x sing_batch.job`			
+		1. If you wrote it in windows, make sure to fix new line characters: `sed -i -e 's/\r$//' sing_batch.job`
+
+	1. A linux .sh script to call within the singularity image, See: `sing.sh`, essentially:
+		
+		```
 		export DLClight=True #headless DLC mode
 		python3 dlc_jobarray.py $1 #Passes slurm array task id to python script
-
-	c. A python script to load deeplabcut and perform analysis
-		i. See: dlc_jobarray.py, essentially:
+		```
+	1. The python script-- loads deeplabcut and perform analysis, See: `dlc_jobarray.py`, essentially:
+		
+		```
 		import sys
 		import deeplabcut
 		jobid=int(sys.argv[1])
@@ -73,13 +83,12 @@ ssh -l userid bridges.psc.xsede.org
 		print("Analyzing video %d / %d: %s" % (jobid,len(vids),video))
 		deeplabcut.analyze_videos(path_config_file,[video_path + video],gputouse=0,batchsize=8,save_as_csv = True)
 		print("Succeeded")
+		```
 
-5) Create an array sbatch command:
-	a. Ssh into the server as described above.
-	b. cd to directory with sing_batch.job
-	c. For example, to process the first 10 videos on volta16 GPUs in parallel type:
-	d. sbatch -p GPU-AI -N 1 --gres=gpu:volta16:1 -t 03:00:00 --array=0-9 sing_batch.job
-	e. The numbers after --array are the local variable $SLURM_ARRAY_TASK_ID assigned to each new instance opened on a GPU node. This makes it easy to resume at a certain video etc. 
-	f. If you know the absolute longest it could take to analyze a video, update the max time HH:MM:SS after the -t option to be that time.
-	g. It’s possible to debug this code in an interactive session: requested via:
-	h. interact -p GPU-AI --gres=gpu:volta16:1 -t 01:00:00 --egress
+1. Finally, type the SLURM sbatch command as a job array to recruit GPU nodes as quickly as they become available:
+	1. ssh into the server as described above.
+	1. cd to directory with sing_batch.job, e.g. `cd $SCRATCH`
+	1. For example, to process the first 10 videos on volta16 GPUs in parallel type: `sbatch -p GPU-AI -N 1 --gres=gpu:volta16:1 -t 03:00:00 --array=0-9 sing_batch.job`
+	1. The numbers after --array are the number of jobs that will each get assigned to a GPU node. This task ID will also be passed as the local env variable $SLURM_ARRAY_TASK_ID -- This makes it easy to resume at a certain video etc by passing a different array range. See SLURM job array documentation for more details (https://slurm.schedmd.com/job_array.html)
+	1. If you know the absolute longest amount of time it could take to analyze one of your videos, update the max time HH:MM:SS after the -t option to reflect that time. the -t command requests a certain max amount of time, and shorter times may be available more quickly on a given cluster.
+	1. It’s possible to debug this code in an interactive session: requested via: `interact -p GPU-AI --gres=gpu:volta16:1 -t 01:00:00 --egress`
