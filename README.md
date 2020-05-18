@@ -47,12 +47,13 @@ Many steps assume you are logged into the cluster via ssh, for example using:
 	1. Note: It is possible to make your own docker and push that to dockerhub if you wish to make changes. See docker documentation for details on docker push. https://ropenscilabs.github.io/r-docker-tutorial/04-Dockerhub.html
 	
 1. Upload your trained model to PSC (or if training done on server, skip this step)
+	1. There are many ways to do this, so I am just giving some broad guidelines.
 
-	1. Copy the DLC trained model project folder onto $SCRATCH 
+	1. Copy the DLC trained model project folder onto $SCRATCH (you can safely remove old iterations and only copy the latest iteration).
 	
-	1. Copy the pre-trained resnet_v1_50.ckpt model to a location in $SCRATCH (only need to do this first time)
+	1. Copy the pre-trained resnet_v1_50.ckpt model to a location in $SCRATCH (only need to do this first time). DLC can attempt to do this automatically during training / project init but I ran into errors on the cluster with this (even with --egress enabled).
 	
-	1. Edit the project .yaml files to reference these server locations! In particular: project’s main config.yaml and /train/pose_cfg.yaml and /test/pose_cfg.yaml (if required). This can be done using the onDemand file editor in PSC if using Bridges, or vim via ssh.
+	1. Edit the project .yaml files to reference these new server locations (i.e. not your local computer locations)! In particular: project’s main config.yaml and /train/pose_cfg.yaml and /test/pose_cfg.yaml (if required). This can be done using the onDemand file editor in PSC if using Bridges, or vim via ssh.
 	
 	1. Note: Absolute paths seem to work better than relative paths, i.e. /pylon5/grantid/userid/project as opposed to ./project
 	
