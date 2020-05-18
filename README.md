@@ -58,7 +58,7 @@ Many steps assume you are logged into the cluster via ssh, for example using:
 	
 1. Prepare 3 scripts necessary for running jobs in parallel on PSC:
 	1. Job script, look at `sing_batch.job` for more details, but essentially:
-		1. This file is a SLURM .job script that loads singularity module and executes linux script using the converted docker image: `singularity exec --nv dlc_217.simg ./sing.sh $SLURM_ARRAY_TASK_ID` -- --nv enables CUDA support, and $SLURM_ARRAY_TASK_ID is the number assigned during the sbatch job array call which can be passed all the way into Python to pick which videos to analyze. Each video can be analyzed in parallel using this method (for as many GPU nodes are available)
+		1. This file is a SLURM .job script that loads singularity module and executes linux script using the converted docker image: `singularity exec --nv dlc_217.simg ./sing.sh $SLURM_ARRAY_TASK_ID` --> --nv enables CUDA support, and $SLURM_ARRAY_TASK_ID is the number assigned during the sbatch job array call which can be passed all the way into Python to pick which videos to analyze. Each video can be analyzed in parallel using this method (for as many GPU nodes are available)
 		1. Make sure .job file is executable: `chmod +x sing_batch.job`			
 		1. If you wrote it in windows, make sure to fix new line characters: `sed -i -e 's/\r$//' sing_batch.job`
 
@@ -88,8 +88,8 @@ Many steps assume you are logged into the cluster via ssh, for example using:
 1. Finally, write the sbatch command as a job array to recruit GPU nodes as quickly as they become available:
 	1. ssh into the server as described above.
 	1. cd to directory with sing_batch.job, e.g. `cd $SCRATCH`
-	1. For example, to process the first 10 videos on volta16 GPUs in parallel type: `sbatch -p GPU-AI -N 1 --gres=gpu:volta16:1 -t 03:00:00 --array=0-9 sing_batch.job`
-	1. The numbers after --array are the number of jobs that will each get assigned to a GPU node. This task ID will also be passed as the local env variable $SLURM_ARRAY_TASK_ID -- This makes it easy to resume at a certain video etc by passing a different array range. See SLURM job array documentation for more details (https://slurm.schedmd.com/job_array.html)
+	1. `sbatch -p GPU-AI -N 1 --gres=gpu:volta16:1 -t 03:00:00 --array=0-9 sing_batch.job` --> Processes the first 10 videos on volta16 GPUs in parallel.
+	1. The numbers after --array are the number of jobs that will each get assigned to separate GPU nodes. This task ID will also be passed as the local env variable $SLURM_ARRAY_TASK_ID --> This makes it easy to resume at a certain video etc by passing a different array range. See SLURM job array documentation for more details (https://slurm.schedmd.com/job_array.html)
 	1. If you know the absolute longest amount of time it could take to analyze one of your videos, update the max time HH:MM:SS after the -t option to reflect that time. the -t command requests a certain max amount of time, and shorter times may be available more quickly on a given cluster.
 	1. Check the slurm_.out files to see what did and didn't work!
 	1. .csv analysis files will be saved to the project/videos directory
