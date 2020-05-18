@@ -27,7 +27,7 @@ Many steps assume you are logged into the cluster via ssh, for example using:
 		
 1. Import DLC docker from dockerhub and make a singularity image
 
-	1. Log into PSC using ssh (described above)
+	1. Log into server using ssh (described above)
 	
 	1. Load singularity: module load singularity
 	
