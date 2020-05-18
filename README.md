@@ -13,7 +13,7 @@ Many steps assume you are logged into the cluster via ssh, for example using:
 
 1. Using SFTP to import videos onto pylon5 / cluster storage space (skip if videos are already on server or if unnecessary)
 
-	1. It’s possible to login to bridges OnDemand and drag/drop files in the file explorer:
+	1. It is possible to make a symbolic link to /pylon5 in $HOME directory and login to bridges OnDemand and drag/drop files in the file explorer (but this is not ideal method):
 		https://ondemand.bridges.psc.edu/pun/sys/dashboard
 
 	1. On a LINUX machine or using Ubuntu App in Windows / putty, manually add files by sftp:	
