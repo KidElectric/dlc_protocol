@@ -3,7 +3,7 @@ BI - 2020-05-18
 
 This repository contains example Python, SLURM and shell scripts for getting deeplabcut v. 2.1.7 working on a GPU cluster / server using a singularity image. This example is written for the Bridges / PSC / XSEDE GPU-AI nodes but could be adapted to other cluster environments.
 
-The deeplabcut docker is based of the original docker instructions found here: https://github.com/DeepLabCut/Docker4DeepLabCut2.0 but will use a docker image hosted on dockerhub that can be pulled onto the cluster and built into a singularity image instead. (So no need to re-create the docker unless you would like to update it / alter it).
+The deeplabcut docker is based off the original docker instructions found here: https://github.com/DeepLabCut/Docker4DeepLabCut2.0 but will use a docker image hosted on dockerhub that can be pulled onto the cluster and built into a singularity image instead. (So no need to re-create the docker unless you would like to update it / alter it).
 
 Throughout the protocol `userid` will be your Cluster / Server / PSC user ID for example, mine is ‘bisett.’ And `$SCRATCH` represents the directory on the server where your data and model are stored.
 
