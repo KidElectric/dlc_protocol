@@ -88,11 +88,11 @@ Many steps assume you are logged into the cluster via ssh, for example using:
 
 1. Finally, write the sbatch command as a job array to recruit GPU nodes as quickly as they become available:
 	1. ssh into the server as described above.
-	1. cd to directory with sing_batch.job, e.g. `cd $SCRATCH`
+	1. Change directory to directory with sing_batch.job, e.g. `cd $SCRATCH`
 	1. `sbatch -p GPU-AI -N 1 --gres=gpu:volta16:1 -t 03:00:00 --array=0-9 sing_batch.job` --> Processes the first 10 videos on volta16 GPUs in parallel.
 	1. The numbers after --array are the number of jobs that will each get assigned to separate GPU nodes. This task ID will also be passed as the local env variable $SLURM_ARRAY_TASK_ID --> This makes it easy to resume at a certain video etc by passing a different array range. See SLURM job array documentation for more details (https://slurm.schedmd.com/job_array.html)
 	1. If you know the absolute longest amount of time it could take to analyze one of your videos, update the max time HH:MM:SS after the -t option to reflect that time. the -t command requests a certain max amount of time, and shorter times may be available more quickly on a given cluster.
 	1. Check the slurm_.out files to see what did and didn't work!
-	1. .csv analysis files will be saved to the project/videos directory
-	1. It’s possible to debug this code in an interactive session: requested via: `interact -p GPU-AI --gres=gpu:volta16:1 -t 01:00:00 --egress`
+	1. .h5 (and optinally .csv) analysis files will be saved to the project/videos directory
+	1. It’s possible to debug this code in an interactive session on PSC: requested via: `interact -p GPU-AI --gres=gpu:volta16:1 -t 01:00:00 --egress`
 
