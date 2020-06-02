@@ -11,7 +11,7 @@ Many steps assume you are logged into the cluster via ssh, for example using:
 
 `ssh -l userid bridges.psc.xsede.org`
 
-1. Using SFTP to import videos onto pylon5 / cluster storage space (skip if videos are already on server or if unnecessary)
+1. Use SFTP to import videos onto pylon5 / cluster storage space (skip if videos are already on server or if unnecessary)
 
 	1. It is possible to make a symbolic link to /pylon5 in $HOME directory and login to bridges OnDemand and drag/drop files in the file explorer (but this is not ideal method):
 		https://ondemand.bridges.psc.edu/pun/sys/dashboard
@@ -25,21 +25,21 @@ Many steps assume you are logged into the cluster via ssh, for example using:
 		1.	See: pysftp_example.py for simple call
 		1.	See: pysftp_upload.py for full upload pseudo-code example
 		
-1. Import DLC docker from dockerhub and make a singularity image
+1. Import DLC docker from dockerhub and turn it into a Singularity image (.simg)
 
-	1. Log into server using ssh (described above)
+	1. Log into the analysis cluster using ssh (described above)
 	
-	1. Load singularity: module load singularity
+	1. Load Singularity software on the cluster: module load singularity
 	
-	1. Move to desired directory for singularity image, for example: cd $SCRATCH
+	1. Move to your desired directory for singularity image, for example: cd $SCRATCH
 	
-	1. Import a working DLC docker and create singularity image:
+	1. Import the DLC docker and create singularity image:
 	
 		`singularity build dlc_217.simg docker://kidelectric/deeplabcut:ver_2_1_7`
 		
 	1. Your current directory should have a file called dlc_217.simg when this is done.
 	
-	1. You should be able to run a shell in this image, for example:
+	1. You can run a shell command in this image, for example:
 	
 		`singularity shell dlc_217.simg`
 	1. Note: deeplabcut is available as a module in python3 in this image
