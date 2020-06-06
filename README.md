@@ -35,7 +35,7 @@ Many steps assume you are logged into the cluster via ssh, for example using:
 	
 	1. Import the DLC docker and create singularity image:
 	
-		`singularity build dlc_217.simg docker://kidelectric/deeplabcut:ver_2_1_7`
+		`singularity build dlc_217.simg docker://kidelectric/deeplabcut:ver2_1_7`
 		
 	1. Your current directory should have a file called dlc_217.simg when this is done.
 	
